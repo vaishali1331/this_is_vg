@@ -1,0 +1,14 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE
+.vscode/
+.idea/
+
+# Node (in case tooling is added later, e.g. live-server, linters)
+node_modules/
+npm-debug.log*
+
+# Misc
+*.log
