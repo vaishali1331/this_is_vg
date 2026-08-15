@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useActiveSection } from '../hooks/useActiveSection.js';
+import { useScrollProgress } from '../hooks/useScrollProgress.js';
 import { usePortfolio } from '../context/PortfolioContext.jsx';
 import Magnet from './Magnet.jsx';
 
@@ -7,11 +8,12 @@ import Magnet from './Magnet.jsx';
 const NAV_SECTIONS = ['work', 'experience', 'about', 'contact'];
 
 /**
- * Fixed top navigation: logo (period blinks once on load), scroll-spy
- * links, magnetic CTA, and a ⌘K control that opens the command palette.
+ * Fixed top navigation: logo, scroll-spy links, magnetic CTA, ⌘K,
+ * and a 1px accent bar that tracks page scroll.
  */
 export default function Nav() {
   const activeId = useActiveSection(NAV_SECTIONS);
+  const progress = useScrollProgress();
   const { openPalette } = usePortfolio();
 
   const links = useMemo(
@@ -25,6 +27,11 @@ export default function Nav() {
 
   return (
     <nav className="nav" aria-label="Primary">
+      <div
+        className="nav-progress"
+        style={{ transform: `scaleX(${progress})` }}
+        aria-hidden="true"
+      />
       <div className="logo" aria-hidden="true">
         VG<span className="accent logo-cursor">.</span>
       </div>
