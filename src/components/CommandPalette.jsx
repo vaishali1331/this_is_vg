@@ -20,7 +20,7 @@ const LINKEDIN = 'https://www.linkedin.com/in/vaishali-gangwar-2323091a0/';
  * when closed. Focus is trapped while open.
  */
 export default function CommandPalette() {
-  const { paletteOpen, closePalette, togglePalette, setInnDocsMode } =
+  const { paletteOpen, closePalette, togglePalette, setInnDocsMode, setAboutKey } =
     usePortfolio();
   const [query, setQuery] = useState('');
   const [cursor, setCursor] = useState(0);
@@ -77,8 +77,48 @@ export default function CommandPalette() {
           scrollToId('work');
         },
       },
+      {
+        id: 'about-currently',
+        group: 'About',
+        label: 'Switch to currently',
+        hint: 'agents in production',
+        run: () => {
+          setAboutKey('currently');
+          scrollToId('about');
+        },
+      },
+      {
+        id: 'about-taste',
+        group: 'About',
+        label: 'Switch to taste',
+        hint: 'unglamorous parts',
+        run: () => {
+          setAboutKey('taste');
+          scrollToId('about');
+        },
+      },
+      {
+        id: 'about-offline',
+        group: 'About',
+        label: 'Switch to offline',
+        hint: 'cat / sketchbook / gym',
+        run: () => {
+          setAboutKey('offline');
+          scrollToId('about');
+        },
+      },
+      {
+        id: 'about-want',
+        group: 'About',
+        label: 'Switch to want',
+        hint: 'cottage / mountain / pets',
+        run: () => {
+          setAboutKey('want');
+          scrollToId('about');
+        },
+      },
     ],
-    [setInnDocsMode]
+    [setInnDocsMode, setAboutKey]
   );
 
   const filtered = useMemo(() => {
@@ -208,7 +248,7 @@ export default function CommandPalette() {
           className="palette-input"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Jump to a section, copy email, switch ASK / AGENT…"
+          placeholder="Jump to a section, copy email, switch ASK / AGENT / about.yaml…"
           aria-label="Filter commands"
           autoComplete="off"
           spellCheck={false}

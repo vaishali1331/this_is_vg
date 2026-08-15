@@ -2,10 +2,13 @@ import { createContext, useCallback, useContext, useMemo, useState } from 'react
 
 /**
  * @typedef {'ASK' | 'AGENT'} InnDocsMode
+ * @typedef {'currently' | 'taste' | 'offline' | 'want'} AboutKey
  *
  * @typedef {Object} PortfolioContextValue
  * @property {InnDocsMode} innDocsMode - Active InnDocs runtime mode in the write-up.
  * @property {(mode: InnDocsMode) => void} setInnDocsMode - Flip ASK / AGENT (also used by the palette).
+ * @property {AboutKey} aboutKey - Active about.yaml key (swaps the closer sentence).
+ * @property {(key: AboutKey) => void} setAboutKey
  * @property {boolean} paletteOpen - Whether the ⌘K command palette is visible.
  * @property {() => void} openPalette
  * @property {() => void} closePalette
@@ -23,6 +26,9 @@ const PortfolioContext = createContext(null);
  */
 export function PortfolioProvider({ children }) {
   const [innDocsMode, setInnDocsMode] = useState(/** @type {InnDocsMode} */ ('AGENT'));
+  // Default `offline` so the existing cat / sketchbook / gym closer is
+  // the first thing a visitor reads in About.
+  const [aboutKey, setAboutKey] = useState(/** @type {AboutKey} */ ('offline'));
   const [paletteOpen, setPaletteOpen] = useState(false);
 
   const openPalette = useCallback(() => setPaletteOpen(true), []);
@@ -33,12 +39,14 @@ export function PortfolioProvider({ children }) {
     () => ({
       innDocsMode,
       setInnDocsMode,
+      aboutKey,
+      setAboutKey,
       paletteOpen,
       openPalette,
       closePalette,
       togglePalette,
     }),
-    [innDocsMode, paletteOpen, openPalette, closePalette, togglePalette]
+    [innDocsMode, aboutKey, paletteOpen, openPalette, closePalette, togglePalette]
   );
 
   return (

@@ -9,6 +9,7 @@ const HELP = [
   'whoami    — one-line bio',
   'stack     — config.stack.yaml keys',
   'work      — jump to projects',
+  'about     — dump about.yaml',
   'contact   — print email',
   'clear     — wipe the buffer',
   'help      — this list',
@@ -47,6 +48,14 @@ function runCommand(raw) {
     case 'work':
       scrollToId('work');
       return [{ type: 'out', text: 'InnDocs.AI · Inncircles Arena' }];
+    case 'about':
+      scrollToId('about');
+      return [
+        {
+          type: 'out',
+          text: 'name: Vaishali Gangwar · location: Hyderabad · currently: agents',
+        },
+      ];
     case 'contact':
       scrollToId('contact');
       return [{ type: 'out', text: 'vaishali13gangwar@gmail.com' }];
@@ -129,7 +138,7 @@ export default function MiniTerminal() {
         />
       </form>
       <p id="hero-term-hint" className="hero-terminal-hint">
-        try whoami, stack, work, contact — or hit ⌘K
+        try whoami, stack, work, about, contact — or hit ⌘K
       </p>
     </div>
   );

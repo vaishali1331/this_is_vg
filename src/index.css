@@ -495,6 +495,29 @@ pre {
 .cta.is-visible .cta-links a:nth-child(1) { transition-delay: 0.1s; }
 .cta.is-visible .cta-links a:nth-child(2) { transition-delay: 0.25s; }
 
+/* About: kicker -> lead -> yaml keys -> closer */
+.about .kicker,
+.about .about-lead,
+.about .about-yaml,
+.about .about-sub {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.about.is-visible .kicker,
+.about.is-visible .about-lead,
+.about.is-visible .about-yaml,
+.about.is-visible .about-sub {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.about.is-visible .kicker { transition-delay: 0.05s; }
+.about.is-visible .about-lead { transition-delay: 0.15s; }
+.about.is-visible .about-yaml { transition-delay: 0.28s; }
+.about.is-visible .about-sub { transition-delay: 0.4s; }
+
 .kicker {
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
@@ -884,11 +907,39 @@ body[data-spotlight="arena"] .tags span:not([data-project="arena"]) {
   font-weight: 500;
 }
 
+/* Marked phrases in the lead — accent underline, no tooltip. */
+.about-phrase {
+  border-bottom: 1px solid color-mix(in oklch, var(--accent) 45%, transparent);
+  color: inherit;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.about-phrase:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.about-yaml {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 20px;
+  margin: 8px 0 24px;
+}
+
+.about-yaml-file {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--accent);
+}
+
 .about-sub {
   font-size: 16px;
   line-height: 1.7;
   color: var(--muted);
   margin: 0;
+  /* Keeps the closer from jumping the section height when keys swap. */
+  min-height: 6.8em;
 }
 
 /* Space stacked quieter paragraphs (IC/domain + personal) without
@@ -1158,7 +1209,8 @@ body[data-spotlight="arena"] .tags span:not([data-project="arena"]) {
     display: none;
   }
 
-  .mode-blurb {
+  .mode-blurb,
+  .about-sub {
     min-height: 0;
   }
 
@@ -1218,7 +1270,11 @@ body[data-spotlight="arena"] .tags span:not([data-project="arena"]) {
   .project-grid > div,
   .experience .timeline-row,
   .skills .skill-cell,
-  .cta-links a {
+  .cta-links a,
+  .about .kicker,
+  .about .about-lead,
+  .about .about-yaml,
+  .about .about-sub {
     transition: none;
     opacity: 1;
     transform: none;
@@ -1237,7 +1293,8 @@ body[data-spotlight="arena"] .tags span:not([data-project="arena"]) {
   .tags span,
   .metric,
   .nav-cta,
-  .skill-used-in {
+  .skill-used-in,
+  .about-phrase {
     transition: none;
   }
 
