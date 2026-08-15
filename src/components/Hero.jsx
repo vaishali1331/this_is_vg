@@ -26,7 +26,7 @@ const HERO_CODE = `async def run_pipeline(query: str, tenant_id: str):
  */
 export default function Hero() {
   return (
-    <header className="hero">
+    <header className="hero" id="top">
       {/* React Bits CursorGrid: fills the hero and lights up cells around
           the pointer. Decorative only, so it's hidden from assistive tech;
           .hero-content gets pointer-events: none (see index.css) so mouse

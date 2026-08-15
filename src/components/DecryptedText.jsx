@@ -14,7 +14,9 @@ const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!<>-_/[]{}â€
  * @param {number} [props.speed=32] - Ms between reveal ticks.
  * @param {number} [props.delay=0] - Ms to wait before starting.
  * @param {string} [props.className] - Class on the visible wrapper.
- * @param {'view' | 'mount'} [props.animateOn='view'] - Start on intersect or immediately.
+ * @param {'view' | 'mount' | 'hover'} [props.animateOn='view'] - Start on intersect, immediately, or when `play` increments.
+ * @param {number} [props.play=0] - Hover mode: increment to replay the scramble (0 = show final text).
+ * @param {boolean} [props.announce=true] - When false, skip the sr-only copy (parent already labels).
  */
 export default function DecryptedText({
   text,
@@ -22,15 +24,29 @@ export default function DecryptedText({
   delay = 0,
   className = '',
   animateOn = 'view',
+  play = 0,
+  announce = true,
 }) {
   const reduced = usePrefersReducedMotion();
   const containerRef = useRef(/** @type {HTMLSpanElement | null} */ (null));
+  const hoverIdle = animateOn === 'hover';
   const [started, setStarted] = useState(animateOn === 'mount' || reduced);
-  const [revealedCount, setRevealedCount] = useState(reduced ? text.length : 0);
+  const [revealedCount, setRevealedCount] = useState(
+    reduced || hoverIdle ? text.length : 0
+  );
   const [tick, setTick] = useState(0);
+
+  // Hover/focus replay: parent increments `play`. Skip the initial 0.
+  useEffect(() => {
+    if (animateOn !== 'hover' || reduced || play === 0) return undefined;
+    setRevealedCount(0);
+    setStarted(true);
+    return undefined;
+  }, [animateOn, play, reduced]);
 
   // Kick off when the node scrolls into view (default) or on mount.
   useEffect(() => {
+    if (animateOn === 'hover') return undefined;
     if (reduced || started) return undefined;
     if (animateOn === 'mount') {
       setStarted(true);
@@ -56,6 +72,8 @@ export default function DecryptedText({
     return () => observer.disconnect();
   }, [animateOn, reduced, started]);
 
+  // `play` is in the deps so hover replays restart the interval even when
+  // `started` is already true from a previous enter.
   useEffect(() => {
     if (!started || reduced) return undefined;
 
@@ -77,7 +95,7 @@ export default function DecryptedText({
       clearTimeout(timeout);
       if (interval) clearInterval(interval);
     };
-  }, [started, reduced, text, speed, delay]);
+  }, [started, reduced, text, speed, delay, play]);
 
   const chars = useMemo(
     () =>
@@ -91,7 +109,7 @@ export default function DecryptedText({
 
   return (
     <span ref={containerRef} className={`decrypted${className ? ` ${className}` : ''}`}>
-      <span className="sr-only">{text}</span>
+      {announce && <span className="sr-only">{text}</span>}
       <span aria-hidden="true">
         {chars.map((char, index) => (
           <span

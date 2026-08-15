@@ -1,20 +1,26 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useActiveSection } from '../hooks/useActiveSection.js';
 import { useScrollProgress } from '../hooks/useScrollProgress.js';
 import { usePortfolio } from '../context/PortfolioContext.jsx';
 import Magnet from './Magnet.jsx';
+import DecryptedText from './DecryptedText.jsx';
 
 /** Section ids the underline tracks — matches the in-page anchors. */
 const NAV_SECTIONS = ['work', 'experience', 'about', 'contact'];
 
 /**
- * Fixed top navigation: logo, scroll-spy links, magnetic CTA, ⌘K,
- * and a 1px accent bar that tracks page scroll.
+ * Fixed top navigation: VG. is a back-to-top control that decrypts on
+ * hover/focus; plus scroll-spy links, magnetic CTA, ⌘K, and a 1px
+ * accent bar that tracks page scroll.
  */
 export default function Nav() {
   const activeId = useActiveSection(NAV_SECTIONS);
   const progress = useScrollProgress();
   const { openPalette } = usePortfolio();
+  // Incremented on logo hover/focus so DecryptedText replays "VG" only
+  // on enter — not on every pointer move.
+  const [logoPlay, setLogoPlay] = useState(0);
+  const replayLogo = () => setLogoPlay((n) => n + 1);
 
   const links = useMemo(
     () => [
@@ -32,9 +38,16 @@ export default function Nav() {
         style={{ transform: `scaleX(${progress})` }}
         aria-hidden="true"
       />
-      <div className="logo" aria-hidden="true">
-        VG<span className="accent logo-cursor">.</span>
-      </div>
+      <a
+        href="#top"
+        className="logo"
+        aria-label="Back to top"
+        onMouseEnter={replayLogo}
+        onFocus={replayLogo}
+      >
+        <DecryptedText text="VG" animateOn="hover" play={logoPlay} announce={false} speed={28} />
+        <span className="accent logo-cursor">.</span>
+      </a>
       <div className="nav-links">
         {links.map((link) => (
           <a
