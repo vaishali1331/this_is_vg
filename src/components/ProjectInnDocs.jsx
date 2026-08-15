@@ -1,11 +1,40 @@
 import { useScrollReveal } from '../hooks/useScrollReveal.js';
+import { usePortfolio } from '../context/PortfolioContext.jsx';
 import TagList from './TagList.jsx';
 import MetricGrid from './MetricGrid.jsx';
 import CodePanel from './CodePanel.jsx';
 
-// Decorative snippet: ASK vs AGENT routing on the LangGraph / Deep Agent
-// runtime — mirrors the InnDocs.AI write-up, not a real production file.
-const CODE_SNIPPET = `graph = build_agent(mode, tools)
+/** @typedef {'ASK' | 'AGENT'} InnDocsMode */
+
+/**
+ * Mode-specific snippet, metrics, and the one sentence that swaps
+ * when the ASK / AGENT control is toggled.
+ *
+ * @type {Record<InnDocsMode, { filename: string, code: string, blurb: string, metrics: { value: string, label: string, small?: boolean }[] }>}
+ */
+const MODES = {
+  ASK: {
+    filename: 'ask_route.py',
+    code: `graph = build_agent("ASK", tools=["rag"])
+
+@graph.node
+async def route(state):
+    return milvus.rag(state.query, k=8)
+
+@graph.node
+async def stream(state):
+    return stream.token(state.reply)`,
+    blurb:
+      'ASK is low-latency Q&A with Milvus RAG over contracts and uploads — no sandbox, no long loop. One retrieve, one answer, streamed back in chat.',
+    metrics: [
+      { value: 'ASK', label: 'low-latency Q&A', small: true },
+      { value: 'Milvus RAG', label: 'contracts and uploads', small: true },
+      { value: 'k=8', label: 'retrieve then answer', small: true },
+    ],
+  },
+  AGENT: {
+    filename: 'agent_graph.py',
+    code: `graph = build_agent(mode, tools)
 
 @graph.node
 async def route(state):
@@ -21,7 +50,19 @@ async def route(state):
 async def hitl(state):
     if state.needs_review:
         await checkpoint.pause(state)
-    return stream.token(state.reply)`;
+    return stream.token(state.reply)`,
+    blurb:
+      'AGENT is the full loop — Modal sandbox execution, S3-backed files, long-term memory, and human-in-the-loop review. Thread lifecycle sits on Dramatiq + RabbitMQ + MongoDB checkpoints.',
+    metrics: [
+      { value: 'AGENT', label: 'full tool-using loop', small: true },
+      { value: 'HITL', label: 'prompt review and source validation', small: true },
+      { value: 'Multi-agent', label: 'LangGraph / Deep Agent graph', small: true },
+    ],
+  },
+};
+
+/** @type {InnDocsMode[]} */
+const MODE_ORDER = ['ASK', 'AGENT'];
 
 const TAGS = [
   'LangGraph',
@@ -36,20 +77,15 @@ const TAGS = [
   'S3',
 ];
 
-const METRICS = [
-  { value: 'ASK / AGENT', label: 'two modes, one runtime', small: true },
-  { value: 'HITL', label: 'prompt review and source validation', small: true },
-  { value: 'Multi-agent', label: 'LangGraph / Deep Agent graph', small: true },
-];
-
 /**
- * "PROJECT 01" section — InnDocs.AI (Bob, the construction agent).
- * Uses `useScrollReveal` to add the `is-visible` class once the section
- * scrolls into view, which drives the slide-in + staggered child
- * animations defined in index.css.
+ * "PROJECT 01" — InnDocs.AI. The ASK / AGENT control swaps the snippet,
+ * the metric row, and one sentence of copy. Mode is shared with the
+ * command palette via PortfolioContext.
  */
 export default function ProjectInnDocs() {
   const [ref, isVisible] = useScrollReveal();
+  const { innDocsMode, setInnDocsMode } = usePortfolio();
+  const mode = MODES[innDocsMode];
 
   return (
     <section
@@ -70,19 +106,52 @@ export default function ProjectInnDocs() {
           <p>
             I designed and shipped it on a shared LangGraph / Deep Agent runtime:
             request-scoped middleware so each chat can turn on web search, knowledge-base
-            RAG, project search, connectors, canvas, and skills without shared state. ASK
-            is low-latency Q&amp;A with Milvus RAG over contracts and uploads; AGENT is the
-            full loop — Modal sandbox execution, S3-backed files, long-term memory, and
-            human-in-the-loop review. Thread lifecycle (run, resume, stop, edit-and-retry)
-            sits on Dramatiq + RabbitMQ + MongoDB checkpoints, with source validation,
-            token/cost tracking, and real-time streaming.
+            RAG, project search, connectors, canvas, and skills without shared state.
           </p>
+          <p className="mode-blurb">{mode.blurb}</p>
 
-          <TagList tags={TAGS} />
-          <MetricGrid metrics={METRICS} />
+          <div
+            className="mode-toggle"
+            role="radiogroup"
+            aria-label="InnDocs runtime mode"
+            onKeyDown={(event) => {
+              // Arrow keys flip ASK ↔ AGENT so the radiogroup is usable
+              // without a pointer, matching native radio behavior.
+              if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+              event.preventDefault();
+              const next = innDocsMode === 'ASK' ? 'AGENT' : 'ASK';
+              setInnDocsMode(next);
+              const nextBtn = event.currentTarget.querySelector(
+                `[role="radio"][aria-checked="false"]`
+              );
+              if (nextBtn instanceof HTMLButtonElement) nextBtn.focus();
+            }}
+          >
+            {MODE_ORDER.map((value) => (
+              <button
+                key={value}
+                type="button"
+                role="radio"
+                aria-checked={innDocsMode === value}
+                tabIndex={innDocsMode === value ? 0 : -1}
+                className={`mode-toggle-btn${innDocsMode === value ? ' is-active' : ''}`}
+                onClick={() => setInnDocsMode(value)}
+              >
+                {value}
+              </button>
+            ))}
+          </div>
+
+          <TagList tags={TAGS} project="inndocs" />
+          <MetricGrid metrics={mode.metrics} />
         </div>
 
-        <CodePanel filename="agent_graph.py" code={CODE_SNIPPET} />
+        <CodePanel
+          key={innDocsMode}
+          filename={mode.filename}
+          code={mode.code}
+          play={isVisible}
+        />
       </div>
     </section>
   );

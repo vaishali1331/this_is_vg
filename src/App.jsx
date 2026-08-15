@@ -1,3 +1,4 @@
+import { PortfolioProvider } from './context/PortfolioContext.jsx';
 import Nav from './components/Nav.jsx';
 import Hero from './components/Hero.jsx';
 import ProjectInnDocs from './components/ProjectInnDocs.jsx';
@@ -6,19 +7,16 @@ import Experience from './components/Experience.jsx';
 import Skills from './components/Skills.jsx';
 import About from './components/About.jsx';
 import Contact from './components/Contact.jsx';
+import CommandPalette from './components/CommandPalette.jsx';
 
 /**
- * Top-level page composition. This mirrors the section order of the
- * original static index.html exactly — nav, hero, two project
- * write-ups, experience timeline, skills grid, about, contact footer.
- *
- * Drop new React Bits components (https://reactbits.dev) in as new
- * children here, or inside any of the section components under
- * src/components/, once installed via the CLI (see README.md).
+ * Top-level page composition. Section order is unchanged — nav, hero,
+ * two project write-ups, experience, skills, about, contact — with the
+ * command palette mounted last so it overlays everything.
  */
 export default function App() {
   return (
-    <>
+    <PortfolioProvider>
       <Nav />
       <Hero />
       <ProjectInnDocs />
@@ -27,6 +25,7 @@ export default function App() {
       <Skills />
       <About />
       <Contact />
-    </>
+      <CommandPalette />
+    </PortfolioProvider>
   );
 }

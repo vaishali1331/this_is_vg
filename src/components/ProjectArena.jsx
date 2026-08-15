@@ -43,12 +43,18 @@ export default function ProjectArena() {
     <section
       ref={ref}
       className={`section project project-02${isVisible ? ' is-visible' : ''}`}
+      id="arena"
     >
       <div className="kicker">PROJECT 02</div>
       <h2>Inncircles Arena</h2>
 
       <div className="project-grid">
-        <CodePanel filename="socket-gateway.ts" code={CODE_SNIPPET} reorder />
+        <CodePanel
+          filename="socket-gateway.ts"
+          code={CODE_SNIPPET}
+          reorder
+          play={isVisible}
+        />
 
         <div className="text-reorder">
           <p>
@@ -62,7 +68,7 @@ export default function ProjectArena() {
             Native app so field teams get the same experience as the web dashboard.
           </p>
 
-          <TagList tags={TAGS} />
+          <TagList tags={TAGS} project="arena" />
           <MetricGrid metrics={METRICS} />
         </div>
       </div>
