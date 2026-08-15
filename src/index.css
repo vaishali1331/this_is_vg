@@ -2,6 +2,15 @@
  * Vaishali Gangwar — portfolio styles.
  * Design tokens (colors) are centralized here as CSS custom properties
  * so the dark theme can be tweaked from one place.
+ *
+ * This file is imported once in src/main.jsx so every component below
+ * shares these global rules. Component-specific class names (.hero,
+ * .project, .skills, etc.) are still applied directly in JSX — the
+ * markup structure carried over 1:1 from the old static HTML.
+ *
+ * React Bits components (https://reactbits.dev) can be dropped in
+ * alongside this file — see README.md for the CSS-variant install
+ * commands (jsrepo/shadcn) that match this project's plain-CSS setup.
  */
 :root {
   --bg: #0A0A0A;          /* page background */
@@ -99,19 +108,33 @@ pre {
 }
 
 /* HERO */
+/* Anchored to the bottom of the viewport (rather than centered) so the
+   space below the hero copy is a fixed, deterministic value instead of
+   viewport-height-dependent dead space. padding-bottom (280px) lifts
+   the copy a bit above the fold; padding-top just needs to clear the
+   fixed nav bar. */
 .hero {
   position: relative;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 0 48px;
+  justify-content: flex-end;
+  padding: 200px 48px 280px;
   overflow: hidden;
+}
+
+/* React Bits CursorGrid layer — sits behind everything else in the hero
+   and above nothing, so it needs the lowest explicit z-index here. */
+.hero-cursor-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 }
 
 .hero-code {
   position: absolute;
   inset: 0;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -126,8 +149,11 @@ pre {
 
 .hero-content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   max-width: 1000px;
+  /* Lets pointermove/pointerdown fall through to .hero-cursor-grid below,
+     so the grid still reacts when the cursor is over the headline text. */
+  pointer-events: none;
 }
 
 .eyebrow {
@@ -506,10 +532,19 @@ pre {
   margin: 0;
 }
 
+/* Space stacked quieter paragraphs (IC/domain + personal) without
+   making either one shout like the lead. */
+.about-sub + .about-sub {
+  margin-top: 16px;
+}
+
 /* CTA / FOOTER */
+/* No padding override here on purpose — .cta inherits the standard
+   `.section` padding (120px 48px), keeping the same constant rhythm
+   as every other section instead of the one-off 140px/60px it used
+   to have. */
 .cta {
   max-width: none;
-  padding: 140px 48px 60px 48px;
 }
 
 .cta-inner {
@@ -618,6 +653,15 @@ pre {
   .section {
     padding-left: 24px;
     padding-right: 24px;
+  }
+
+  /* Nav bar is shorter on mobile (18px padding vs 22px), so the hero
+     needs less top clearance. Bottom padding is also reduced so the
+     copy still sits above the fold without eating most of a short
+     viewport. */
+  .hero {
+    padding-top: 110px;
+    padding-bottom: 160px;
   }
 
   /* Smaller slide-in distance on narrow screens so the reveal doesn't

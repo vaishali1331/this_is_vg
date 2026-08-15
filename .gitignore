@@ -6,9 +6,14 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Node (in case tooling is added later, e.g. live-server, linters)
+# Node
 node_modules/
 npm-debug.log*
+
+# Vite build output
+dist/
+dist-ssr/
+*.local
 
 # Misc
 *.log
