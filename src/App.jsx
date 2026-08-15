@@ -8,6 +8,7 @@ import Skills from './components/Skills.jsx';
 import About from './components/About.jsx';
 import Contact from './components/Contact.jsx';
 import CommandPalette from './components/CommandPalette.jsx';
+import CursorSample from './components/CursorSample.jsx';
 
 /**
  * Top-level page composition. Section order is unchanged — nav, hero,
@@ -26,6 +27,7 @@ export default function App() {
       <About />
       <Contact />
       <CommandPalette />
+      <CursorSample />
     </PortfolioProvider>
   );
 }
